@@ -9,10 +9,7 @@
 // add an option to lock drawing to the pixel grid // done
 // add a base class called entity //done
 
-// rename game_object to entity // optional
-// restructure code to match the return order // optional
-
-function Saiga2D(input_settings) {
+function Saiga2D(input_settings = {}) {
 
     const view = document.createElement('canvas')
     const context = view.getContext('2d')
@@ -39,9 +36,23 @@ function Saiga2D(input_settings) {
     }
 
     class vector2 {
-        constructor(x, y){
+        constructor(x = 0, y = 0){
             this.x = x
             this.y = y
+        }
+        normalize() {
+            const length = Math.sqrt(this.x * this.x + this.y * this.y);
+            this.x /= length;
+            this.y /= length;
+        }
+        rotate(degrees) {
+            const radians = (Math.PI / 180) * degrees;
+            const cos = Math.cos(radians);
+            const sin = Math.sin(radians);
+            const new_x = this.x * cos - this.y * sin;
+            const new_y = this.x * sin + this.y * cos;
+            this.x = new_x;
+            this.y = new_y;
         }
     }
     
@@ -53,7 +64,7 @@ function Saiga2D(input_settings) {
     }
     
     class rect {
-        constructor(width, height){
+        constructor(width = 0, height = 0){
             this.width = width * settings.pixel_size
             this.height = height * settings.pixel_size
         }
@@ -129,42 +140,37 @@ function Saiga2D(input_settings) {
         constructor(){
             super()
             this.sprite = null
-            this.position = new vector2(0, 0)
-            this.velocity = new vector2(0, 0)
-            this.size = new rect(0, 0)
+            this.position = new vector2()
+            this.velocity = new vector2()
+            this.size = new rect()
             this.rotation = 0
             this.scale = new vector2(1, 1)
             this.origin = null
             this.alpha = 1
-            this.frame = new vector2(0, 0)
+            this.frame = new vector2()
             this.frame_gap = 1
             this.pixel_snap = false
             this.is_colliding = false
         }
-
         render(){
             this.handle_collision()
             this.update()
             this.apply_velocity()
             this.draw()
         }
-
         draw(){
             if (!this.origin) this.origin = new vector2(this.size.width * 0.5, this.size.height * 0.5)
             if (this.sprite) draw_sprite(this.sprite, this.position.x, this.position.y, this.size.width, this.size.height, this.rotation, this.scale.x, this.scale.y, this.origin.x, this.origin.y, this.alpha, this.frame.x, this.frame.y, this.frame_gap, this.pixel_snap)
         }
-
         handle_collision(){
             render_stack.forEach((game_object) => {
                 if(game_object !== this) check_aabb_collision(this, game_object) ? (this.on_collision(game_object), this.is_colliding = true) : this.is_colliding = false
             })
         }
-
         apply_velocity(){
             this.position.x += this.velocity.x
             this.position.y += this.velocity.y
         }
-        
         on_collision(){}
     }
 
