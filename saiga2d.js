@@ -10,9 +10,10 @@
 // add a base class called entity //done
 // add mouse position field // done
 // improve input system // done
+// set delta_time property // done
 
 // order of rendering using layers property
-// set delta_time property
+// rename game_object to entity in functions
 
 function Saiga2D(input_settings = {}) {
 
@@ -79,8 +80,8 @@ function Saiga2D(input_settings = {}) {
 
     class game_time {
         constructor(){
-            this.delta_time = 0
-            this.global_time = 0
+            this.delta = 0
+            this.global = 0
         }
     }
 
@@ -89,8 +90,8 @@ function Saiga2D(input_settings = {}) {
 
     const screen = new vector2
     const mouse = new vector2
-    const input = {}
     const time = new game_time
+    const input = {}
 
     function draw_rect(x, y, width, height, rotation, scale_x, scale_y, origin_x, origin_y, color, alpha, pixel_snap){
 
@@ -195,25 +196,32 @@ function Saiga2D(input_settings = {}) {
         render_stack.forEach((game_object) => game_object instanceof entity && game_object.render())
     }
 
-    function add_input_events(element){
+    function add_events(element){
         element.addEventListener('keydown', (e) => input[e.code] = true)
         element.addEventListener('keyup', (e) => input[e.code] = false)
         element.addEventListener('mousedown', (e) => input['Mouse' + e.button] = true)
         element.addEventListener('mouseup', (e) => input['Mouse' + e.button] = false)
+        view.addEventListener('mousemove', (e) => (mouse.x = e.offsetX, mouse.y = e.offsetY))
+        view.addEventListener('contextmenu', (e) => e.preventDefault())
     }
 
-    function update(){
+    let prev_timestamp = null
+
+    function update(timestamp){
+        if(!prev_timestamp) prev_timestamp = timestamp
+        time.delta = (timestamp - prev_timestamp) / 1000
+        time.global++
+        prev_timestamp = timestamp
+
         clear()
         render_game_objects()
-        time.global_time++
         requestAnimationFrame(update)
     }
 
     function start(element = document.body){
         element.appendChild(view)
-        add_input_events(element)
-        view.addEventListener('mousemove', (e) => (mouse.x = e.offsetX, mouse.y = e.offsetY))
-        update()
+        add_events(element)
+        requestAnimationFrame(update)
     }
 
     function instantiate(game_object, spawn_properties = {}){
@@ -221,15 +229,6 @@ function Saiga2D(input_settings = {}) {
         render_global_id++
         Object.assign(game_object, spawn_properties)
         render_stack.push(game_object)
-    }
-
-    const game = {
-        start,
-        instantiate,
-        screen,
-        input,
-        mouse,
-        time
     }
 
     const graphics = {
@@ -247,13 +246,18 @@ function Saiga2D(input_settings = {}) {
     }
 
     return {
+        start,
+        instantiate,
         entity,
         game_object,
         vector2,
         sprite,
         rect,
-        game,
+        time,
+        input,
+        mouse,
+        screen,
         graphics,
-        utils,
+        utils
     }
 }
