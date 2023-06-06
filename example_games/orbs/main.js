@@ -29,7 +29,7 @@ class red_orb extends s2d.game_object {
         document.addEventListener('keydown', (e) => this.shoot(e.code))
     }
     update(){
-        if(s2d.game.keys['KeyW']){
+        if(s2d.game.keys.KeyW){
             this.velocity.x += this.direction_vector.x
             this.velocity.y += this.direction_vector.y
         }

@@ -56,8 +56,10 @@ function Saiga2D(input_settings = {}) {
             const radians = (Math.PI / 180) * degrees
             const cos = Math.cos(radians)
             const sin = Math.sin(radians)
-            this.x = this.x * cos - this.y * sin
-            this.y = this.x * sin + this.y * cos
+            const x = this.x * cos - this.y * sin
+            const y = this.x * sin + this.y * cos
+            this.x = x
+            this.y = y
         }
     }
     
