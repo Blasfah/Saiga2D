@@ -9,8 +9,8 @@
 // add an option to lock drawing to the pixel grid // done
 // add a base class called entity //done
 // add mouse position field // done
+// improve input system // done
 
-// improve input system
 // order of rendering using layers property
 // set delta_time property
 
@@ -89,7 +89,7 @@ function Saiga2D(input_settings = {}) {
 
     const screen = new vector2
     const mouse = new vector2
-    const keys = {}
+    const input = {}
     const time = new game_time
 
     function draw_rect(x, y, width, height, rotation, scale_x, scale_y, origin_x, origin_y, color, alpha, pixel_snap){
@@ -195,6 +195,13 @@ function Saiga2D(input_settings = {}) {
         render_stack.forEach((game_object) => game_object instanceof entity && game_object.render())
     }
 
+    function add_input_events(element){
+        element.addEventListener('keydown', (e) => input[e.code] = true)
+        element.addEventListener('keyup', (e) => input[e.code] = false)
+        element.addEventListener('mousedown', (e) => input['Mouse' + e.button] = true)
+        element.addEventListener('mouseup', (e) => input['Mouse' + e.button] = false)
+    }
+
     function update(){
         clear()
         render_game_objects()
@@ -204,8 +211,7 @@ function Saiga2D(input_settings = {}) {
 
     function start(element = document.body){
         element.appendChild(view)
-        element.addEventListener('keydown', (e) => keys[e.code] = true)
-        element.addEventListener('keyup', (e) => keys[e.code] = false)
+        add_input_events(element)
         view.addEventListener('mousemove', (e) => (mouse.x = e.offsetX, mouse.y = e.offsetY))
         update()
     }
@@ -221,7 +227,7 @@ function Saiga2D(input_settings = {}) {
         start,
         instantiate,
         screen,
-        keys,
+        input,
         mouse,
         time
     }
