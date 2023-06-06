@@ -8,6 +8,11 @@
 // figure out a way to do screen moving // done
 // add an option to lock drawing to the pixel grid // done
 // add a base class called entity //done
+// add mouse position field // done
+
+// improve input system
+// order of rendering using layers property
+// set delta_time property
 
 function Saiga2D(input_settings = {}) {
 
@@ -20,7 +25,8 @@ function Saiga2D(input_settings = {}) {
         background_color: 'transparent',
         pixel_size: 1,
         fps: 144,
-        scale_mode: 'nearest'
+        scale_mode: 'nearest',
+        show_cursor: true
     }
 
     Object.assign(settings, input_settings)
@@ -28,6 +34,7 @@ function Saiga2D(input_settings = {}) {
     view.width = settings.width
     view.height = settings.height
     view.style.backgroundColor = settings.background_color
+    view.style.cursor = settings.show_cursor ? 'default' : 'none'
 
     switch (settings.scale_mode){
         case 'linear': context.imageSmoothingEnabled = true; break
@@ -36,23 +43,21 @@ function Saiga2D(input_settings = {}) {
     }
 
     class vector2 {
-        constructor(x = 0, y = 0){
+        constructor(x = 0, y = x){
             this.x = x
             this.y = y
         }
         normalize() {
-            const length = Math.sqrt(this.x * this.x + this.y * this.y);
-            this.x /= length;
-            this.y /= length;
+            const length = Math.sqrt(this.x * this.x + this.y * this.y)
+            this.x /= length
+            this.y /= length
         }
         rotate(degrees) {
-            const radians = (Math.PI / 180) * degrees;
-            const cos = Math.cos(radians);
-            const sin = Math.sin(radians);
-            const new_x = this.x * cos - this.y * sin;
-            const new_y = this.x * sin + this.y * cos;
-            this.x = new_x;
-            this.y = new_y;
+            const radians = (Math.PI / 180) * degrees
+            const cos = Math.cos(radians)
+            const sin = Math.sin(radians)
+            this.x = this.x * cos - this.y * sin
+            this.y = this.x * sin + this.y * cos
         }
     }
     
@@ -64,19 +69,28 @@ function Saiga2D(input_settings = {}) {
     }
     
     class rect {
-        constructor(width = 0, height = 0){
+        constructor(width = 0, height = width){
             this.width = width * settings.pixel_size
             this.height = height * settings.pixel_size
         }
     }
 
+    class game_time {
+        constructor(){
+            this.delta_time = 0
+            this.global_time = 0
+        }
+    }
+
     let render_stack = []
     let render_global_id = 0
-    let global_time = 0
 
-    let screen = new vector2(0, 0)
+    const screen = new vector2
+    const mouse = new vector2
+    const keys = {}
+    const time = new game_time
 
-    function draw_rect(x, y, width, height, rotation, scale_x, scale_y, origin_x, origin_y, color, alpha){
+    function draw_rect(x, y, width, height, rotation, scale_x, scale_y, origin_x, origin_y, color, alpha, pixel_snap){
 
         x = pixel_snap ? (Math.round(x - screen.x)) : (x - screen.x)
         y = pixel_snap ? (Math.round(y - screen.y)) : (y - screen.y)
@@ -182,7 +196,7 @@ function Saiga2D(input_settings = {}) {
     function update(){
         clear()
         render_game_objects()
-        global_time++
+        time.global_time++
         requestAnimationFrame(update)
     }
 
@@ -190,6 +204,7 @@ function Saiga2D(input_settings = {}) {
         element.appendChild(view)
         element.addEventListener('keydown', (e) => keys[e.code] = true)
         element.addEventListener('keyup', (e) => keys[e.code] = false)
+        view.addEventListener('mousemove', (e) => (mouse.x = e.offsetX, mouse.y = e.offsetY))
         update()
     }
 
@@ -200,15 +215,13 @@ function Saiga2D(input_settings = {}) {
         render_stack.push(game_object)
     }
 
-    function get_global_time(){
-        return global_time
-    }
-
     const game = {
         start,
         instantiate,
-        get_global_time,
-        screen
+        screen,
+        keys,
+        mouse,
+        time
     }
 
     const graphics = {
@@ -225,8 +238,6 @@ function Saiga2D(input_settings = {}) {
         distance
     }
 
-    const keys = {}
-
     return {
         entity,
         game_object,
@@ -236,6 +247,5 @@ function Saiga2D(input_settings = {}) {
         game,
         graphics,
         utils,
-        keys
     }
 }
