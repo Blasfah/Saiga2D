@@ -11,9 +11,11 @@
 // add mouse position field // done
 // improve input system // done
 // set delta_time property // done
+// rename game_object to entity in functions // done
 
 // order of rendering using layers property
-// rename game_object to entity in functions
+// ui component class
+// add a text drawing function
 
 function Saiga2D(input_settings = {}) {
 
@@ -25,7 +27,6 @@ function Saiga2D(input_settings = {}) {
         height: 600,
         background_color: 'transparent',
         pixel_size: 1,
-        fps: 144,
         scale_mode: 'nearest',
         show_cursor: true
     }
@@ -48,8 +49,27 @@ function Saiga2D(input_settings = {}) {
             this.x = x
             this.y = y
         }
+        add(input_vector2){
+            this.x += input_vector2.x
+            this.y += input_vector2.y
+        }
+        subtract(input_vector2) {
+            this.x -= input_vector2.x
+            this.y -= input_vector2.y
+        }
+        multiply(scalar1, scalar2 = scalar1){
+            this.x *= scalar1
+            this.y *= scalar2
+        }
+        divide(scalar1, scalar2 = scalar1){
+            this.x /= scalar1
+            this.y /= scalar2
+        }
+        length() {
+            return Math.sqrt(this.x * this.x + this.y * this.y)
+        }
         normalize() {
-            const length = Math.sqrt(this.x * this.x + this.y * this.y)
+            const length = this.length()
             this.x /= length
             this.y /= length
         }
@@ -180,20 +200,19 @@ function Saiga2D(input_settings = {}) {
             if (this.sprite) draw_sprite(this.sprite, this.position.x, this.position.y, this.size.width, this.size.height, this.rotation, this.scale.x, this.scale.y, this.origin.x, this.origin.y, this.alpha, this.frame.x, this.frame.y, this.frame_gap, this.pixel_snap)
         }
         handle_collision(){
-            render_stack.forEach((game_object) => {
-                if(game_object !== this) check_aabb_collision(this, game_object) ? (this.on_collision(game_object), this.is_colliding = true) : this.is_colliding = false
+            render_stack.forEach((object) => {
+                if(object !== this) check_aabb_collision(this, object) ? (this.on_collision(object), this.is_colliding = true) : this.is_colliding = false
             })
         }
         apply_velocity(){
-            this.position.x += this.velocity.x
-            this.position.y += this.velocity.y
+            this.position.add(this.velocity)
         }
         on_collision(){}
     }
 
-    function render_game_objects(){
+    function render(){
         render_stack = render_stack.filter(({ alive }) => alive)
-        render_stack.forEach((game_object) => game_object instanceof entity && game_object.render())
+        render_stack.forEach((object) => object instanceof entity && object.render())
     }
 
     function add_events(element){
@@ -214,7 +233,7 @@ function Saiga2D(input_settings = {}) {
         prev_timestamp = timestamp
 
         clear()
-        render_game_objects()
+        render()
         requestAnimationFrame(update)
     }
 
@@ -224,11 +243,11 @@ function Saiga2D(input_settings = {}) {
         requestAnimationFrame(update)
     }
 
-    function instantiate(game_object, spawn_properties = {}){
-        game_object.id = render_global_id
+    function instantiate(object, spawn_properties = {}){
+        object.id = render_global_id
         render_global_id++
-        Object.assign(game_object, spawn_properties)
-        render_stack.push(game_object)
+        Object.assign(object, spawn_properties)
+        render_stack.push(object)
     }
 
     const graphics = {

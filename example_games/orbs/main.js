@@ -46,15 +46,17 @@ class red_orb extends s2d.game_object {
         }
         if(!s2d.input['Mouse0']) this.has_shot = false
         
-        this.velocity.x *= this.drag
-        this.velocity.y *= this.drag
+        this.velocity.multiply(this.drag)
     }
     shoot(){
         s2d.instantiate(new bullet(new s2d.vector2(this.position.x + (this.size.width / 2 - 6) + (this.direction_vector.x * 150), this.position.y + (this.size.height / 2 - 6) + (this.direction_vector.y * 150)), new s2d.vector2(this.direction_vector.x * 50, this.direction_vector.y * 50)))
     }
     draw(){
         super.draw()
-        s2d.graphics.draw_sprite(this.arrow_sprite, this.position.x + (this.size.width / 2 - this.arrow_size.width / 2) + (this.direction_vector.x * 250), this.position.y + (this.size.height / 2 - this.arrow_size.height / 2) + (this.direction_vector.y * 250), this.arrow_size.width, this.arrow_size.height, this.direction, 1, 1, this.arrow_size.width / 2, this.arrow_size.height / 2, s2d.input['KeyW'] ? 1 : 0.5, 0, 0, 1, false)
+        const vec = new s2d.vector2(this.direction_vector.x, this.direction_vector.y)
+        vec.normalize()
+        vec.multiply(25)
+        s2d.graphics.draw_sprite(this.arrow_sprite, this.position.x + (this.size.width / 2 - this.arrow_size.width / 2) + vec.x, this.position.y + (this.size.height / 2 - this.arrow_size.height / 2) + vec.y, this.arrow_size.width, this.arrow_size.height, this.direction, 1, 1, this.arrow_size.width / 2, this.arrow_size.height / 2, s2d.input['KeyW'] ? 1 : 0.5, 0, 0, 1, false)
     }
 }
 
