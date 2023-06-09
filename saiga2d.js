@@ -14,8 +14,9 @@
 // rename game_object to entity in functions // done
 
 // order of rendering using layers property
-// ui component class
+// add fixed property to draw functions
 // add a text drawing function
+// add blending modes
 
 function Saiga2D(input_settings = {}) {
 
@@ -113,21 +114,27 @@ function Saiga2D(input_settings = {}) {
     const time = new game_time
     const input = {}
 
-    function draw_rect(x, y, width, height, rotation, scale_x, scale_y, origin_x, origin_y, color, alpha, pixel_snap){
+    function draw_rect(x, y, width, height, rotation, scale_x, scale_y, origin_x, origin_y, color, alpha, pixel_snap, fixed){
 
-        x = pixel_snap ? (Math.round(x - screen.x)) : (x - screen.x)
-        y = pixel_snap ? (Math.round(y - screen.y)) : (y - screen.y)
+        const calc_x = fixed ? x : x - screen.x
+        const calc_y = fixed ? y : y - screen.y
 
-        setup_draw(x - screen.x, y - screen.y, rotation, scale_x, scale_y, origin_x, origin_y, alpha)
+        x = pixel_snap ? Math.round(calc_x) : calc_x
+        y = pixel_snap ? Math.round(calc_y) : calc_y
+
+        setup_draw(x, y, rotation, scale_x, scale_y, origin_x, origin_y, alpha)
         context.fillStyle = color
-        context.fillRect(x - screen.x, y - screen.y, width, height)
+        context.fillRect(x, y, width, height)
     }
 
-    function draw_sprite(sprite, x, y, width, height, rotation, scale_x, scale_y, origin_x, origin_y, alpha, frame_x, frame_y, frame_gap, pixel_snap){
+    function draw_sprite(sprite, x, y, width, height, rotation, scale_x, scale_y, origin_x, origin_y, alpha, frame_x, frame_y, frame_gap, pixel_snap, fixed){
         const ps = settings.pixel_size
 
-        x = pixel_snap ? (Math.round(x - screen.x)) : (x - screen.x)
-        y = pixel_snap ? (Math.round(y - screen.y)) : (y - screen.y)
+        const calc_x = fixed ? x : x - screen.x
+        const calc_y = fixed ? y : y - screen.y
+
+        x = pixel_snap ? Math.round(calc_x) : calc_x
+        y = pixel_snap ? Math.round(calc_y) : calc_y
 
         setup_draw(x, y, rotation, scale_x, scale_y, origin_x, origin_y, alpha)
         context.drawImage(sprite, (width / ps + frame_gap) * frame_x, (height / ps + frame_gap) * frame_y, width / ps, height / ps, x, y, width, height)
@@ -187,6 +194,7 @@ function Saiga2D(input_settings = {}) {
             this.frame = new vector2()
             this.frame_gap = 1
             this.pixel_snap = false
+            this.fixed = false
             this.is_colliding = false
         }
         render(){
@@ -197,7 +205,7 @@ function Saiga2D(input_settings = {}) {
         }
         draw(){
             if (!this.origin) this.origin = new vector2(this.size.width * 0.5, this.size.height * 0.5)
-            if (this.sprite) draw_sprite(this.sprite, this.position.x, this.position.y, this.size.width, this.size.height, this.rotation, this.scale.x, this.scale.y, this.origin.x, this.origin.y, this.alpha, this.frame.x, this.frame.y, this.frame_gap, this.pixel_snap)
+            if (this.sprite) draw_sprite(this.sprite, this.position.x, this.position.y, this.size.width, this.size.height, this.rotation, this.scale.x, this.scale.y, this.origin.x, this.origin.y, this.alpha, this.frame.x, this.frame.y, this.frame_gap, this.pixel_snap, this.fixed)
         }
         handle_collision(){
             render_stack.forEach((object) => {
