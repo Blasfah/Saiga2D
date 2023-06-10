@@ -139,8 +139,9 @@ class cursor extends s2d.game_object {
     constructor(){
         super()
         this.sprite = new s2d.sprite('assets/cursor.png')
-        this.size = new s2d.rect(7, 9)
+        this.size = new s2d.rect(7, 10)
         this.pixel_snap = true
+        this.fixed = true
     }
     update(){
         this.position = s2d.mouse
