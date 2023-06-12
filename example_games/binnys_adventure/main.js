@@ -27,7 +27,7 @@ class player extends s2d.game_object {
 
         !this.can_jump ? this.frame.y = 1 : this.frame.y = 0
 
-        this.last_position = new s2d.vector2(this.position.x, this.position.y)
+        this.last_position = this.position.copy()
     }
     on_collision(obj){
         if(obj instanceof platform){
@@ -44,6 +44,7 @@ class platform extends s2d.game_object {
         super()
         this.sprite = new s2d.sprite('assets/big_platform.png')
         this.size = new s2d.rect(91, 18)
+        this.pixel_snap = true
     }
 }
 
@@ -52,6 +53,7 @@ const scenes = {
         [player, {position: new s2d.vector2(200, 200 - new player().size.height)}],
         [platform, {position: new s2d.vector2(150, 200)}],
         [platform, {position: new s2d.vector2(450, 250)}],
+        [platform, {position: new s2d.vector2(632, 250)}],
     ]
 }
 

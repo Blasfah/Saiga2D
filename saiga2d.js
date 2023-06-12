@@ -75,6 +75,9 @@ function Saiga2D(input_settings = {}) {
             const sin = Math.sin(radians)
             return new vector2(this.x * cos - this.y * sin, this.x * sin + this.y * cos)
         }
+        copy(){
+            return new vector2(this.x, this.y)
+        }
     }
     
     class sprite extends Image {
