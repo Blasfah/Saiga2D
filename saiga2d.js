@@ -51,37 +51,29 @@ function Saiga2D(input_settings = {}) {
             this.y = y
         }
         add(input_vector2){
-            this.x += input_vector2.x
-            this.y += input_vector2.y
+            return new vector2(this.x + input_vector2.x, this.y + input_vector2.y)
         }
         subtract(input_vector2) {
-            this.x -= input_vector2.x
-            this.y -= input_vector2.y
+            return new vector2(this.x - input_vector2.x, this.y - input_vector2.y)
         }
-        multiply(scalar1, scalar2 = scalar1){
-            this.x *= scalar1
-            this.y *= scalar2
+        multiply(scalar_x, scalar_y = scalar_x){
+            return new vector2(this.x * scalar_x, this.y * scalar_y)
         }
-        divide(scalar1, scalar2 = scalar1){
-            this.x /= scalar1
-            this.y /= scalar2
+        divide(scalar_x, scalar_y = scalar_x){
+            return new vector2(this.x / scalar_x, this.y / scalar_y)
         }
         length() {
             return Math.sqrt(this.x * this.x + this.y * this.y)
         }
         normalize() {
             const length = this.length()
-            this.x /= length
-            this.y /= length
+            return new vector2(this.x / length, this.y / length)
         }
         rotate(degrees) {
             const radians = (Math.PI / 180) * degrees
             const cos = Math.cos(radians)
             const sin = Math.sin(radians)
-            const x = this.x * cos - this.y * sin
-            const y = this.x * sin + this.y * cos
-            this.x = x
-            this.y = y
+            return new vector2(this.x * cos - this.y * sin, this.x * sin + this.y * cos)
         }
     }
     
@@ -213,7 +205,7 @@ function Saiga2D(input_settings = {}) {
             })
         }
         apply_velocity(){
-            this.position.add(this.velocity)
+            this.position = this.position.add(this.velocity)
         }
         on_collision(){}
     }

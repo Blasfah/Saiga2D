@@ -18,7 +18,7 @@ class player extends s2d.game_object {
     update(){
         if(s2d.input['KeyA']) this.velocity.x += -this.speed * s2d.time.delta
         if(s2d.input['KeyD']) this.velocity.x += this.speed * s2d.time.delta
-        if(s2d.input['Space'] && this.can_jump) this.velocity.y = this.jump_power, this.can_jump = false 
+        if((s2d.input['Space'] || s2d.input['KeyW']) && this.can_jump) this.velocity.y = this.jump_power, this.can_jump = false 
         
         this.velocity.x *= Math.pow(1 - this.drag, s2d.time.delta * 6)
         this.velocity.y += this.gravity
