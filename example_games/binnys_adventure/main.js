@@ -6,7 +6,7 @@ class player extends s2d.game_object {
     constructor(){
         super()
         this.sprite = new s2d.sprite('assets/binny.png')
-        this.size = new s2d.rect(19, 26)
+        this.size = new s2d.rect(15, 18)
         this.last_position = new s2d.vector2(this.position.x, this.position.y)
         this.can_jump = false
 
@@ -28,6 +28,11 @@ class player extends s2d.game_object {
         !this.can_jump ? this.frame.y = 1 : this.frame.y = 0
 
         this.last_position = this.position.copy()
+    }
+    draw(){
+        //super.draw()
+        s2d.graphics.draw_sprite(this.sprite, this.position.x - (2 * 2), this.position.y - (8 * 2), 19 * 2, 26 * 2, this.rotation, this.scale.x, this.scale.y, this.size.width / 2 + (2 * 2), this.size.height / 2 + (8 * 2), this.alpha, this.frame.x, this.frame.y, this.frame_gap, false, false)
+        //s2d.graphics.draw_rect(this.position.x, this.position.y, this.size.width, this.size.height, 0, 1, 1, 0, 0, 'red', 0.5, false, false)
     }
     on_collision(obj){
         if(obj instanceof platform){
