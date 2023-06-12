@@ -198,9 +198,9 @@ function Saiga2D(input_settings = {}) {
             this.is_colliding = false
         }
         render(){
-            this.handle_collision()
             this.update()
             this.apply_velocity()
+            this.handle_collision()
             this.draw()
         }
         draw(){
