@@ -2,12 +2,16 @@ const s2d = Saiga2D({
     pixel_size: 2
 })
 
+const [vector2, rect, sprite] = [s2d.vector2, s2d.rect, s2d.sprite]
+
 class player extends s2d.game_object {
     constructor(){
         super()
-        this.sprite = new s2d.sprite('assets/binny.png')
-        this.size = new s2d.rect(15, 18)
-        this.last_position = new s2d.vector2(this.position.x, this.position.y)
+        this.sprite = new sprite('assets/binny.png')
+        this.size = new rect(19, 26)
+        this.origin =  new vector2(this.size.width / 2, this.size.height / 2)
+
+        this.last_position = this.position.copy()
         this.can_jump = false
 
         this.speed = 40
@@ -30,9 +34,10 @@ class player extends s2d.game_object {
         this.last_position = this.position.copy()
     }
     draw(){
-        //super.draw()
-        s2d.graphics.draw_sprite(this.sprite, this.position.x - (2 * 2), this.position.y - (8 * 2), 19 * 2, 26 * 2, this.rotation, this.scale.x, this.scale.y, this.size.width / 2 + (2 * 2), this.size.height / 2 + (8 * 2), this.alpha, this.frame.x, this.frame.y, this.frame_gap, false, false)
-        //s2d.graphics.draw_rect(this.position.x, this.position.y, this.size.width, this.size.height, 0, 1, 1, 0, 0, 'red', 0.5, false, false)
+        super.draw()
+        s2d.graphics.draw_rect('red', this.position, this.size, 0, new vector2(1), this.origin, this.alpha / 4, this.pixel_snap, this.fixed)
+        s2d.graphics.draw_line('blue', new vector2(this.position.x + this.size.width / 2, this.position.y + this.size.height / 2), new vector2((this.position.x + this.size.width / 2) + this.velocity.x * 20, (this.position.y + this.size.height / 2) + this.velocity.y * 20), 2, 0.5)
+        s2d.graphics.draw_text(`x: ${Math.round(this.position.x)}, y: ${Math.round(this.position.y)}`, '14px', 'red', 'arial', new vector2(this.position.x, this.position.y - 15))
     }
     on_collision(obj){
         if(obj instanceof platform){
@@ -44,21 +49,18 @@ class player extends s2d.game_object {
     }
 }
 
-class platform extends s2d.game_object {
+class platform extends s2d.game_object{
     constructor(){
         super()
-        this.sprite = new s2d.sprite('assets/big_platform.png')
-        this.size = new s2d.rect(91, 18)
-        this.pixel_snap = true
+        this.sprite = new sprite('assets/platform.png')
+        this.size = new rect(48, 16)
     }
 }
 
 const scenes = {
     'level_1': [
-        [player, {position: new s2d.vector2(200, 200 - new player().size.height)}],
-        [platform, {position: new s2d.vector2(150, 200)}],
-        [platform, {position: new s2d.vector2(450, 250)}],
-        [platform, {position: new s2d.vector2(632, 250)}],
+        [player, {position: new vector2(200, 200 - new player().size.height)}],
+        [platform, {position: new vector2(170, 200)}],
     ]
 }
 

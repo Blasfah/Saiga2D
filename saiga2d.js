@@ -12,11 +12,21 @@
 // improve input system // done
 // set delta_time property // done
 // rename game_object to entity in functions // done
+// add fixed property to draw functions // done
+// remove origin default // done
+// possibly remove frame gap // done
+// draw funcs take in vec2 instead // done
+// add a line drawing function // done
+// fix weird screen moving bug // done
+// add a text drawing function // done
 
 // order of rendering using layers property
-// add fixed property to draw functions
-// add a text drawing function
 // add blending modes
+// add filters
+// make the dx of adding params to classes better and not like the current dogshit thing "this is game ready" my ass
+// give access to settings object // maybe
+// improve pixel size setting aka make it not confusing as shit
+
 
 function Saiga2D(input_settings = {}) {
 
@@ -109,43 +119,56 @@ function Saiga2D(input_settings = {}) {
     const time = new game_time
     const input = {}
 
-    function draw_rect(x, y, width, height, rotation, scale_x, scale_y, origin_x, origin_y, color, alpha, pixel_snap, fixed){
-
-        const calc_x = fixed ? x : x - screen.x
-        const calc_y = fixed ? y : y - screen.y
-
-        x = pixel_snap ? Math.round(calc_x) : calc_x
-        y = pixel_snap ? Math.round(calc_y) : calc_y
-
-        setup_draw(x, y, rotation, scale_x, scale_y, origin_x, origin_y, alpha)
+    function draw_rect(color, position = new vector2(), size = new vector2(), rotation = 0, scale = new vector2(1), origin = new vector2(), alpha = 1, pixel_snap = false, fixed = false){
+        position = calc_pos(position.copy(), pixel_snap, fixed) 
+        setup_draw(position, rotation, scale, origin, alpha)
         context.fillStyle = color
-        context.fillRect(x, y, width, height)
+        context.fillRect(position.x, position.y, size.width, size.height)
     }
 
-    function draw_sprite(sprite, x, y, width, height, rotation, scale_x, scale_y, origin_x, origin_y, alpha, frame_x, frame_y, frame_gap, pixel_snap, fixed){
+    function draw_sprite(sprite, position = new vector2(), size = new vector2(), rotation = 0, scale = new vector2(1), origin = new vector2(), alpha = 1, frame = new vector2(), pixel_snap = false, fixed = false){
         const ps = settings.pixel_size
-
-        const calc_x = fixed ? x : x - screen.x
-        const calc_y = fixed ? y : y - screen.y
-
-        x = pixel_snap ? Math.round(calc_x) : calc_x
-        y = pixel_snap ? Math.round(calc_y) : calc_y
-
-        setup_draw(x, y, rotation, scale_x, scale_y, origin_x, origin_y, alpha)
-        context.drawImage(sprite, (width / ps + frame_gap) * frame_x, (height / ps + frame_gap) * frame_y, width / ps, height / ps, x, y, width, height)
+        const frame_gap = 1
+        position = calc_pos(position.copy(), pixel_snap, fixed) 
+        setup_draw(position, rotation, scale, origin, alpha)
+        context.drawImage(sprite, (size.width / ps + frame_gap) * frame.x, (size.height / ps + frame_gap) * frame.y, size.width / ps, size.height / ps, position.x, position.y, size.width, size.height)
     }
 
-    function setup_draw(x, y, rotation, scale_x, scale_y, origin_x, origin_y, alpha){
-        const offsetX = x + origin_x
-        const offsetY = y + origin_y
-
+    function draw_line(color, start_position, end_position, width = 1, alpha = 1, pixel_snap = false, fixed = false){
+        start_position = calc_pos(start_position.copy(), pixel_snap, fixed)
+        end_position = calc_pos(end_position.copy(), pixel_snap, fixed)
+        context.beginPath()
+        context.moveTo(start_position.x, start_position.y)
+        context.lineTo(end_position.x, end_position.y)
+        context.strokeStyle = color
+        context.lineWidth = width
         context.globalAlpha = alpha < 0 ? 0 : alpha
+        context.stroke()
+    }
 
+    function draw_text(text, text_size = '16px', color = 'black', font = 'arial', position = new vector2(), rotation = 0, scale = new vector2(1), origin = new vector2(), alpha = 1, pixel_snap = false, fixed = false){
+        position = calc_pos(position.copy(), pixel_snap, fixed) 
+        setup_draw(position, rotation, scale, origin, alpha)
+        context.fillStyle = color
+        context.font = `${text_size} ${font}`
+        context.textBaseline = 'hanging'
+        context.fillText(text, position.x, position.y)
+    }
+
+    function setup_draw(position, rotation, scale, origin, alpha){
+        const offset = new s2d.vector2(position.x + origin.x, position.y + origin.y)
+        context.globalAlpha = alpha < 0 ? 0 : alpha
         context.resetTransform()
-        context.translate(offsetX, offsetY)
-        context.scale(scale_x, scale_y)
+        context.translate(offset.x, offset.y)
+        context.scale(scale.x, scale.y)
         context.rotate(rotation * (Math.PI / 180))
-        context.translate(-offsetX, -offsetY)
+        context.translate(-offset.x, -offset.y)
+    }
+
+    function calc_pos(position, pixel_snap, fixed){
+        if(!fixed) position = new vector2(position.x - screen.x, position.y - screen.y)
+        if(pixel_snap) position = new vector2(Math.round(position.x), Math.round(position.y))
+        return position
     }
 
     function clear(){
@@ -183,11 +206,10 @@ function Saiga2D(input_settings = {}) {
             this.velocity = new vector2()
             this.size = new rect()
             this.rotation = 0
-            this.scale = new vector2(1, 1)
-            this.origin = null
+            this.scale = new vector2(1)
+            this.origin = new vector2()
             this.alpha = 1
             this.frame = new vector2()
-            this.frame_gap = 1
             this.pixel_snap = false
             this.fixed = false
             this.is_colliding = false
@@ -199,8 +221,7 @@ function Saiga2D(input_settings = {}) {
             this.draw()
         }
         draw(){
-            if (!this.origin) this.origin = new vector2(this.size.width * 0.5, this.size.height * 0.5)
-            if (this.sprite) draw_sprite(this.sprite, this.position.x, this.position.y, this.size.width, this.size.height, this.rotation, this.scale.x, this.scale.y, this.origin.x, this.origin.y, this.alpha, this.frame.x, this.frame.y, this.frame_gap, this.pixel_snap, this.fixed)
+            if (this.sprite) draw_sprite(this.sprite, this.position, this.size, this.rotation, this.scale, this.origin, this.alpha, this.frame, this.pixel_snap, this.fixed)
         }
         handle_collision(){
             render_stack.forEach((object) => {
@@ -218,11 +239,11 @@ function Saiga2D(input_settings = {}) {
         render_stack.forEach((object) => object instanceof entity && object.render())
     }
 
-    function add_events(element){
-        element.addEventListener('keydown', (e) => input[e.code] = true)
-        element.addEventListener('keyup', (e) => input[e.code] = false)
-        element.addEventListener('mousedown', (e) => input['Mouse' + e.button] = true)
-        element.addEventListener('mouseup', (e) => input['Mouse' + e.button] = false)
+    function add_events(){
+        document.body.addEventListener('keydown', (e) => input[e.code] = true)
+        document.body.addEventListener('keyup', (e) => input[e.code] = false)
+        document.body.addEventListener('mousedown', (e) => input['Mouse' + e.button] = true)
+        document.body.addEventListener('mouseup', (e) => input['Mouse' + e.button] = false)
         view.addEventListener('mousemove', (e) => (mouse.x = e.offsetX, mouse.y = e.offsetY))
         view.addEventListener('contextmenu', (e) => e.preventDefault())
     }
@@ -242,7 +263,7 @@ function Saiga2D(input_settings = {}) {
 
     function start(element = document.body){
         element.appendChild(view)
-        add_events(element)
+        add_events()
         requestAnimationFrame(update)
     }
 
@@ -256,6 +277,8 @@ function Saiga2D(input_settings = {}) {
     const graphics = {
         draw_rect,
         draw_sprite,
+        draw_line,
+        draw_text,
         clear
     }
 
