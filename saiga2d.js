@@ -186,16 +186,6 @@ function Saiga2D(input_settings = {}) {
         context.font = `${text.text_size} ${text.font}`
         context.textBaseline = 'top'
         text.lines.forEach((line, index) => context.fillText(line, position.x, position.y + (index * parseInt(text.line_height))))
-        // if(max_width){
-        //     const words = text.split(' ');
-        //     let current_line = '';
-        //     let lines = [];
-        //     words.forEach((word) => context.measureText(current_line + word + ' ').width > max_width ? (lines.push(current_line), current_line = word + ' ') : (current_line = current_line + word + ' '))
-        //     lines.push(current_line);
-        //     lines.forEach((line, index) => context.fillText(line, position.x, position.y + (index * parseInt(text_size))))
-        // } else {
-        //     context.fillText(text, position.x, position.y)
-        // }
     }
 
     function setup_draw(position, rotation, scale, origin, alpha){
