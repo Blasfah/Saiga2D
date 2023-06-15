@@ -19,6 +19,7 @@
 // add a line drawing function // done
 // fix weird screen moving bug // done
 // add a text drawing function // done
+// improve text drawing with a text class // done
 
 // order of rendering using layers property
 // add blending modes
@@ -104,6 +105,38 @@ function Saiga2D(input_settings = {}) {
         }
     }
 
+    class text {
+        constructor(content = '', text_size = '16px', font = 'arial', line_height = text_size){
+            this._content = content
+            this.lines = content.split('\n')
+            this.text_size = text_size
+            this.font = font
+            this.line_height = line_height
+            this.size = new rect()
+            this.calc_dimensions()
+        }
+        get content(){
+            return this._content
+        }
+        set content(value){
+            this._content = value
+            this.lines = this._content.split('\n')
+            this.calc_dimensions()
+        }
+        calc_dimensions(){
+            let width = 0
+            let height = (this.lines.length * parseInt(this.line_height)) - (parseInt(this.line_height) - parseInt(this.text_size))
+
+            context.font = `${this.text_size} ${this.font}`
+            this.lines.forEach((line) => {
+                const line_width = context.measureText(line).width
+                if (line_width > width) width = line_width
+            })
+            this.size.width = width
+            this.size.height = height
+        }
+    }
+
     class game_time {
         constructor(){
             this.delta = 0
@@ -146,13 +179,23 @@ function Saiga2D(input_settings = {}) {
         context.stroke()
     }
 
-    function draw_text(text, text_size = '16px', color = 'black', font = 'arial', position = new vector2(), rotation = 0, scale = new vector2(1), origin = new vector2(), alpha = 1, pixel_snap = false, fixed = false){
+    function draw_text(text, color = 'black', position = new vector2(), rotation = 0, scale = new vector2(1), origin = new vector2(), alpha = 1, pixel_snap = false, fixed = false){
         position = calc_pos(position.copy(), pixel_snap, fixed) 
         setup_draw(position, rotation, scale, origin, alpha)
         context.fillStyle = color
-        context.font = `${text_size} ${font}`
-        context.textBaseline = 'hanging'
-        context.fillText(text, position.x, position.y)
+        context.font = `${text.text_size} ${text.font}`
+        context.textBaseline = 'top'
+        text.lines.forEach((line, index) => context.fillText(line, position.x, position.y + (index * parseInt(text.line_height))))
+        // if(max_width){
+        //     const words = text.split(' ');
+        //     let current_line = '';
+        //     let lines = [];
+        //     words.forEach((word) => context.measureText(current_line + word + ' ').width > max_width ? (lines.push(current_line), current_line = word + ' ') : (current_line = current_line + word + ' '))
+        //     lines.push(current_line);
+        //     lines.forEach((line, index) => context.fillText(line, position.x, position.y + (index * parseInt(text_size))))
+        // } else {
+        //     context.fillText(text, position.x, position.y)
+        // }
     }
 
     function setup_draw(position, rotation, scale, origin, alpha){
@@ -298,6 +341,7 @@ function Saiga2D(input_settings = {}) {
         vector2,
         sprite,
         rect,
+        text,
         time,
         input,
         mouse,
