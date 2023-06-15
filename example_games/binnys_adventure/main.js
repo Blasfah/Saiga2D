@@ -39,10 +39,10 @@ class player extends game_object {
     }
     draw(){
         super.draw()
-        //s2d.graphics.draw_rect('red', this.position, this.size, 0, new vector2(1), this.origin, this.alpha / 4, this.pixel_snap, this.fixed)
+        s2d.graphics.draw_rect('red', this.position, this.size, 0, new vector2(1), this.origin, this.alpha / 4, this.pixel_snap, this.fixed)
         s2d.graphics.draw_line('blue', new vector2(this.position.x + this.size.width / 2, this.position.y + this.size.height / 2), new vector2((this.position.x + this.size.width / 2) + this.velocity.x * 20, (this.position.y + this.size.height / 2) + this.velocity.y * 20), 2, 0.5)
-        s2d.graphics.draw_text(this.text, 'black', new vector2(this.position.x, this.position.y - this.text.size.height - 10))
-        //s2d.graphics.draw_rect('green', new vector2(this.position.x, this.position.y - this.text.size.height), this.text.size, 0, new vector2(1), new vector2(), 0.2)
+        s2d.graphics.draw_text(this.text, 'black', new vector2(this.position.x, this.position.y - this.text.size.height))
+        s2d.graphics.draw_rect('green', new vector2(this.position.x, this.position.y - this.text.size.height), this.text.size, 0, new vector2(1), new vector2(), 0.2)
     }
     on_collision(obj){
         if(obj instanceof platform){

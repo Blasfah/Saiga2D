@@ -169,6 +169,7 @@ function Saiga2D(input_settings = {}) {
     function draw_line(color, start_position, end_position, width = 1, alpha = 1, pixel_snap = false, fixed = false){
         start_position = calc_pos(start_position.copy(), pixel_snap, fixed)
         end_position = calc_pos(end_position.copy(), pixel_snap, fixed)
+        context.resetTransform()
         context.beginPath()
         context.moveTo(start_position.x, start_position.y)
         context.lineTo(end_position.x, end_position.y)
