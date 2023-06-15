@@ -28,7 +28,6 @@
 // give access to settings object // maybe
 // improve pixel size setting aka make it not confusing as shit
 
-
 function Saiga2D(input_settings = {}) {
 
     const view = document.createElement('canvas')
@@ -209,6 +208,10 @@ function Saiga2D(input_settings = {}) {
         context.clearRect(0, 0, settings.width, settings.height)
     }
 
+    function add_font(name, src){
+        new FontFace(name, `url(${src})`).load().then((font) => document.fonts.add(font))
+    }
+
     const rand_int = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min
     const lerp = (min, max, t) => min * (1 - t) + max * t
     const clamp = (value, min, max) => Math.min(Math.max(value, min), max)
@@ -315,6 +318,10 @@ function Saiga2D(input_settings = {}) {
         clear
     }
 
+    const fonts = {
+        add_font
+    }
+
     const utils = {
         rand_int,
         lerp,
@@ -337,6 +344,7 @@ function Saiga2D(input_settings = {}) {
         mouse,
         screen,
         graphics,
+        fonts,
         utils
     }
 }
