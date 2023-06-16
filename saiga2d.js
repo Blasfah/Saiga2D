@@ -20,6 +20,8 @@
 // fix weird screen moving bug // done
 // add a text drawing function // done
 // improve text drawing with a text class // done
+// seems when making a new class the constructor is called twice // needs investigation // done
+// initially setting a text gives the wrong width only when its a custom font
 
 // order of rendering using layers property
 // add blending modes
@@ -105,34 +107,27 @@ function Saiga2D(input_settings = {}) {
     }
 
     class text {
-        constructor(content = '', text_size = '16px', font = 'arial', line_height = text_size){
-            this._content = content
-            this.lines = content.split('\n')
+        constructor(content = '', font = 'arial', text_size = '16px', line_height = text_size){
+            this.content = content
+            this.font = is_font_src(font) ? get_file_name(font) : font
             this.text_size = text_size
-            this.font = font
             this.line_height = line_height
             this.size = new rect()
-            this.calc_dimensions()
-        }
-        get content(){
-            return this._content
-        }
-        set content(value){
-            this._content = value
-            this.lines = this._content.split('\n')
-            this.calc_dimensions()
-        }
-        calc_dimensions(){
-            let width = 0
-            let height = (this.lines.length * parseInt(this.line_height)) - (parseInt(this.line_height) - parseInt(this.text_size))
 
+            is_font_src(font) ? new FontFace(this.font, `url(${font})`).load().then((font) => {
+                document.fonts.add(font)
+                this.calc_size()
+            }) : this.calc_size()
+        }
+        calc_size(){
+            this.lines = this.content.split('\n')
+            this.size.width = 0
+            this.size.height = (this.lines.length * parseInt(this.line_height)) - (parseInt(this.line_height) - parseInt(this.text_size))
             context.font = `${this.text_size} ${this.font}`
             this.lines.forEach((line) => {
                 const line_width = context.measureText(line).width
-                if (line_width > width) width = line_width
+                if (line_width > this.size.width) this.size.width = line_width
             })
-            this.size.width = width
-            this.size.height = height
         }
     }
 
@@ -209,15 +204,13 @@ function Saiga2D(input_settings = {}) {
         context.clearRect(0, 0, settings.width, settings.height)
     }
 
-    function add_font(name, src){
-        new FontFace(name, `url(${src})`).load().then((font) => document.fonts.add(font))
-    }
-
     const rand_int = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min
     const lerp = (min, max, t) => min * (1 - t) + max * t
     const clamp = (value, min, max) => Math.min(Math.max(value, min), max)
     const check_aabb_collision = (a, b) => a.position.x < b.position.x + b.size.width && a.position.x + a.size.width > b.position.x && a.position.y < b.position.y + b.size.height && a.position.y + a.size.height > b.position.y
     const distance = (vector1, vector2) => Math.sqrt((vector2.x - vector1.x) ** 2 + (vector2.y - vector1.y) ** 2)
+    const is_font_src = src => /\.(ttf|otf|woff|woff2|eot|svg)$/i.test(src)
+    const get_file_name = path => path.split('/').pop().split('.')[0]
 
     class entity {
         constructor(){
@@ -319,16 +312,14 @@ function Saiga2D(input_settings = {}) {
         clear
     }
 
-    const fonts = {
-        add_font
-    }
-
     const utils = {
         rand_int,
         lerp,
         clamp,
         check_aabb_collision,
-        distance
+        distance,
+        is_font_src,
+        get_file_name
     }
 
     return {
@@ -345,7 +336,6 @@ function Saiga2D(input_settings = {}) {
         mouse,
         screen,
         graphics,
-        fonts,
         utils
     }
 }

@@ -4,8 +4,6 @@ const s2d = Saiga2D({
 
 const [vector2, rect, sprite, text, game_object] = [s2d.vector2, s2d.rect, s2d.sprite, s2d.text, s2d.game_object]
 
-s2d.fonts.add_font('terraria', 'assets/font.ttf')
-
 class player extends game_object {
     constructor(){
         super()
@@ -21,7 +19,7 @@ class player extends game_object {
         this.gravity = 0.15
         this.drag = 0.9
 
-        this.text = new text('', '18px', 'terraria')
+        this.pos_text = new text('', 'assets/font.ttf', '20px')
     }
     update(){
         if(s2d.input['KeyA']) this.velocity.x += -this.speed * s2d.time.delta
@@ -35,14 +33,23 @@ class player extends game_object {
         !this.can_jump ? this.frame.y = 1 : this.frame.y = 0
         this.last_position = this.position.copy()
 
-        this.text.content = `x: ${Math.round(this.position.x)},\ny: ${Math.round(this.position.y)}`
+        this.pos_text.content = `x: ${Math.round(this.position.x)}\ny: ${Math.round(this.position.y)}`
+        this.pos_text.calc_size()
     }
     draw(){
         super.draw()
-        s2d.graphics.draw_rect('red', this.position, this.size, 0, new vector2(1), this.origin, this.alpha / 4, this.pixel_snap, this.fixed)
+        //s2d.graphics.draw_rect('red', this.position, this.size, 0, new vector2(1), this.origin, this.alpha / 4, this.pixel_snap, this.fixed)
         s2d.graphics.draw_line('blue', new vector2(this.position.x + this.size.width / 2, this.position.y + this.size.height / 2), new vector2((this.position.x + this.size.width / 2) + this.velocity.x * 20, (this.position.y + this.size.height / 2) + this.velocity.y * 20), 2, 0.5)
-        s2d.graphics.draw_text(this.text, 'black', new vector2(this.position.x, this.position.y - this.text.size.height))
-        s2d.graphics.draw_rect('green', new vector2(this.position.x, this.position.y - this.text.size.height), this.text.size, 0, new vector2(1), new vector2(), 0.2)
+        
+        const height_offset = this.pos_text.size.height + 5
+        s2d.graphics.draw_text(this.pos_text, 'black', new vector2(this.position.x + 2, this.position.y - height_offset))
+        s2d.graphics.draw_text(this.pos_text, 'black', new vector2(this.position.x - 2, this.position.y - height_offset))
+        s2d.graphics.draw_text(this.pos_text, 'black', new vector2(this.position.x, this.position.y + 2 - height_offset))
+        s2d.graphics.draw_text(this.pos_text, 'black', new vector2(this.position.x, this.position.y - 2 - height_offset))
+
+        s2d.graphics.draw_text(this.pos_text, 'white', new vector2(this.position.x, this.position.y - height_offset))
+
+        s2d.graphics.draw_rect('green', new vector2(this.position.x, this.position.y - height_offset), this.pos_text.size, 0, new vector2(1), new vector2(), 0.2)
     }
     on_collision(obj){
         if(obj instanceof platform){
@@ -65,9 +72,8 @@ class platform extends game_object {
 
 const scenes = {
     'level_1': [
-        [player, {position: new vector2(200, 200 - new player().size.height)}],
+        [player, {position: new vector2(200, 200 - 26 * 2)}],
         [platform, {position: new vector2(170, 200)}],
-        [platform, {position: new vector2(270, 200)}],
     ]
 }
 
