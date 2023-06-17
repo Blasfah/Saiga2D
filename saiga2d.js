@@ -21,13 +21,14 @@
 // add a text drawing function // done
 // improve text drawing with a text class // done
 // seems when making a new class the constructor is called twice // needs investigation // done
-// initially setting a text gives the wrong width only when its a custom font
+// initially setting a text gives the wrong width only when its a custom font // done
+// add a way to change the cursor pointer // done
 
 // order of rendering using layers property
 // add blending modes
 // add filters
 // make the dx of adding params to classes better and not like the current dogshit thing "this is game ready" my ass
-// give access to settings object // maybe
+// improve the settings object, turn it into a class
 // improve pixel size setting aka make it not confusing as shit
 
 function Saiga2D(input_settings = {}) {
@@ -49,7 +50,6 @@ function Saiga2D(input_settings = {}) {
     view.width = settings.width
     view.height = settings.height
     view.style.backgroundColor = settings.background_color
-    view.style.cursor = settings.show_cursor ? 'default' : 'none'
 
     switch (settings.scale_mode){
         case 'linear': context.imageSmoothingEnabled = true; break
@@ -138,11 +138,23 @@ function Saiga2D(input_settings = {}) {
         }
     }
 
+    class game_mouse extends vector2 {
+        constructor(){
+            super()
+            this.cursor = 'default'
+        }
+        hovers_game_object(obj){
+            if(obj instanceof game_object){
+                return this.x > obj.position.x && this.x < obj.position.x + obj.size.width && this.y > obj.position.y && this.y < obj.position.y + obj.size.height
+            }
+        }
+    }
+
     let render_stack = []
     let render_global_id = 0
 
     const screen = new vector2
-    const mouse = new vector2
+    const mouse = new game_mouse
     const time = new game_time
     const input = {}
 
@@ -285,6 +297,8 @@ function Saiga2D(input_settings = {}) {
         time.delta = (timestamp - prev_timestamp) / 1000
         time.global++
         prev_timestamp = timestamp
+
+        view.style.cursor = settings.show_cursor ? mouse.cursor : 'none'
 
         clear()
         render()
