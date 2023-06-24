@@ -158,6 +158,18 @@ function Saiga2D(input_settings = {}) {
     const time = new game_time
     const input = {}
 
+    function set_filter(filters){
+        context.filter = filters
+    }
+
+    function get_filter(){
+        return context.filter
+    }
+
+    function reset_filter(){
+        context.filter = 'none'
+    }
+
     function draw_rect(color, position = new vector2(), size = new vector2(), rotation = 0, scale = new vector2(1), origin = new vector2(), alpha = 1, pixel_snap = false, fixed = false){
         position = calc_pos(position.copy(), pixel_snap, fixed) 
         setup_draw(position, rotation, scale, origin, alpha)
@@ -323,7 +335,10 @@ function Saiga2D(input_settings = {}) {
         draw_sprite,
         draw_line,
         draw_text,
-        clear
+        set_filter,
+        get_filter,
+        reset_filter,
+        clear,
     }
 
     const utils = {
