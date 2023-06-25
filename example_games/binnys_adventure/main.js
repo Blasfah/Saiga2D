@@ -17,7 +17,7 @@ class player extends game_object {
         this.last_position = this.position.copy()
         this.can_jump = false
 
-        this.speed = 40
+        this.speed = 0.3
         this.jump_power = -5
         this.gravity = 0.15
         this.drag = 0.9
@@ -25,19 +25,19 @@ class player extends game_object {
         this.pos_text = new text('', 'assets/font.ttf', '20px')
     }
     update(){
-        if(s2d.input['KeyA']) this.velocity.x += -this.speed * s2d.time.delta
-        if(s2d.input['KeyD']) this.velocity.x += this.speed * s2d.time.delta
+        if(s2d.input['KeyA']) this.velocity.x += -this.speed
+        if(s2d.input['KeyD']) this.velocity.x += this.speed
         if((s2d.input['Space'] || s2d.input['KeyW']) && this.can_jump) this.velocity.y = this.jump_power, this.can_jump = false 
         
-        this.velocity.x *= Math.pow(1 - this.drag, s2d.time.delta * 6)
+        this.velocity.x *= this.drag
         this.velocity.y += this.gravity
 
         this.rotation = this.velocity.x * 4
         !this.can_jump ? this.frame.y = 1 : this.frame.y = 0
         this.last_position = this.position.copy()
 
-        this.pos_text.content = `x: ${Math.round(this.position.x)}\ny: ${Math.round(this.position.y)}`
-        this.pos_text.calc_size()
+        //this.pos_text.content = `x: ${Math.round(this.position.x)}\ny: ${Math.round(this.position.y)}`
+        //this.pos_text.calc_size()
     }
     // draw(){
     //     super.draw()
@@ -67,9 +67,23 @@ class player extends game_object {
 class platform extends game_object {
     constructor(){
         super()
-        this.sprite = new sprite('assets/platform.png')
-        this.size = new rect(48, 16)
         this.pixel_snap = true
+    }
+}
+
+class platform_1 extends platform {
+    constructor(){
+        super()
+        this.sprite = new sprite('assets/platform_1.png')
+        this.size = new rect(38, 16)
+    }
+}
+
+class platform_2 extends platform {
+    constructor(){
+        super()
+        this.sprite = new sprite('assets/platform_2.png')
+        this.size = new rect(60, 17)
     }
 }
 
@@ -159,12 +173,12 @@ class sawblade_object extends game_object {
 
 const scenes = {
     'level_1': [
-        [player, {position: new vector2(150, 300 - 26 * 2)}],
-        [platform, {position: new vector2(120, 300)}],
-        [platform, {position: new vector2(340, 300)}],
-        [platform, {position: new vector2(570, 300)}],
-        [sawblade_object, {position: new vector2(388, 300)}],
-        [star, {position: new vector2(602, 225)}]
+        [player, {position: new vector2(100 + 38 - 19, 200)}],
+        [platform_1, {position: new vector2(100, 300)}],
+        [platform_2, {position: new vector2(300, 300)}],
+        [platform_1, {position: new vector2(560, 300)}],
+        [sawblade_object, {position: new vector2(360, 275)}],
+        [star, {position: new vector2(560 + 38 - 17, 200)}],
     ]
 }
 

@@ -23,10 +23,10 @@
 // seems when making a new class the constructor is called twice // needs investigation // done
 // initially setting a text gives the wrong width only when its a custom font // done
 // add a way to change the cursor pointer // done
+// add filters // done
 
 // order of rendering using layers property
 // add blending modes
-// add filters
 // make the dx of adding params to classes better and not like the current dogshit thing "this is game ready" my ass
 // improve the settings object, turn it into a class
 // improve pixel size setting aka make it not confusing as shit
