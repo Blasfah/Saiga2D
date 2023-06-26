@@ -5,7 +5,7 @@ const s2d = Saiga2D({
 
 const [vector2, rect, sprite, text, game_object] = [s2d.vector2, s2d.rect, s2d.sprite, s2d.text, s2d.game_object]
 
-s2d.graphics.set_filter('drop-shadow(4px 4px 0px rgba(0, 0, 0, 0.25))')
+s2d.graphics.filter.drop_shadow(4, 4, 0, 'rgba(0, 0, 0, 0.25)')
 
 class player extends game_object {
     constructor(){
@@ -69,13 +69,18 @@ class platform extends game_object {
         super()
         this.pixel_snap = true
     }
+    draw(){
+        s2d.graphics.filter.invert(1)
+        super.draw()
+        s2d.graphics.filter.reset('invert')
+    }
 }
 
 class platform_1 extends platform {
     constructor(){
         super()
         this.sprite = new sprite('assets/platform_1.png')
-        this.size = new rect(38, 16)
+        this.size = new rect(37, 16)
     }
 }
 
@@ -84,6 +89,14 @@ class platform_2 extends platform {
         super()
         this.sprite = new sprite('assets/platform_2.png')
         this.size = new rect(60, 17)
+    }
+}
+
+class platform_3 extends platform {
+    constructor(){
+        super()
+        this.sprite = new sprite('assets/platform_3.png')
+        this.size = new rect(95, 20)
     }
 }
 
@@ -175,7 +188,8 @@ const scenes = {
     'level_1': [
         [player, {position: new vector2(100 + 38 - 19, 200)}],
         [platform_1, {position: new vector2(100, 300)}],
-        [platform_2, {position: new vector2(300, 300)}],
+        [platform_2, {position: new vector2(300, 275)}],
+        [platform_3, {position: new vector2(300 - 34.5, 450)}],
         [platform_1, {position: new vector2(560, 300)}],
         [sawblade_object, {position: new vector2(360, 275)}],
         [star, {position: new vector2(560 + 38 - 17, 200)}],

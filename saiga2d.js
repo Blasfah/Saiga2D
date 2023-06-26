@@ -150,25 +150,82 @@ function Saiga2D(input_settings = {}) {
         }
     }
 
+    class game_filter {
+        constructor(){
+            this.blur_value = ''
+            this.brightness_value = ''
+            this.contrast_value = ''
+            this.drop_shadow_value = ''
+            this.grayscale_value = ''
+            this.hue_rotate_value = ''
+            this.invert_value = ''
+            this.saturate_value = ''
+            this.sepia_value = ''
+        }
+
+        blur(amount){
+            this.blur_value = `blur(${amount}px)`
+            this.update_filter_value()
+        }
+
+        brightness(amount){
+            this.brightness_value = `brightness(${amount * 100}%)`
+            this.update_filter_value()
+        }
+
+        contrast(amount){
+            this.contrast_value = `contrast(${amount * 100}%)`
+            this.update_filter_value()
+        }
+
+        drop_shadow(x, y, blur_amount, color){
+            this.drop_shadow_value = `drop-shadow(${x}px ${y}px ${blur_amount}px ${color})`
+            this.update_filter_value()
+        }
+
+        grayscale(amount){
+            this.grayscale_value = `grayscale(${amount * 100}%)`
+            this.update_filter_value()
+        }
+
+        hue_rotate(amount){
+            this.hue_rotate_value = `hue-rotate(${amount}deg)`
+            this.update_filter_value()
+        }
+
+        invert(amount){
+            this.invert_value = `invert(${amount * 100}%)`
+            this.update_filter_value()
+        }
+
+        saturate(amount){
+            this.saturate_value = `saturate(${amount * 100}%)`
+            this.update_filter_value()
+        }
+
+        sepia(amount){
+            this.sepia_value = `sepia(${amount * 100}%)`
+            this.update_filter_value()
+        }
+
+        reset(filter){ 
+            this[filter + '_value'] = ''
+            this.update_filter_value()
+        }
+
+        update_filter_value(){
+            context.filter = `${this.blur_value} ${this.brightness_value} ${this.contrast_value} ${this.drop_shadow_value} ${this.grayscale_value} ${this.grayscale_value} ${this.hue_rotate_value} ${this.invert_value} ${this.saturate_value} ${this.sepia_value}`
+        }
+    }
+
     let render_stack = []
     let render_global_id = 0
 
+    const filter = new game_filter
     const screen = new vector2
     const mouse = new game_mouse
     const time = new game_time
     const input = {}
-
-    function set_filter(filters){
-        context.filter = filters
-    }
-
-    function get_filter(){
-        return context.filter
-    }
-
-    function reset_filter(){
-        context.filter = 'none'
-    }
 
     function draw_rect(color, position = new vector2(), size = new vector2(), rotation = 0, scale = new vector2(1), origin = new vector2(), alpha = 1, pixel_snap = false, fixed = false){
         position = calc_pos(position.copy(), pixel_snap, fixed) 
@@ -331,13 +388,11 @@ function Saiga2D(input_settings = {}) {
     }
 
     const graphics = {
+        filter,
         draw_rect,
         draw_sprite,
         draw_line,
         draw_text,
-        set_filter,
-        get_filter,
-        reset_filter,
         clear,
     }
 
