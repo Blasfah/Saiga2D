@@ -109,6 +109,7 @@ function Saiga2D(input_settings = {}) {
     class text {
         constructor(content = '', font = 'arial', text_size = '16px', line_height = text_size){
             this.content = content
+            this.lines = this.content.split('\n')
             this.font = is_font_src(font) ? get_file_name(font) : font
             this.text_size = text_size
             this.line_height = line_height
@@ -205,11 +206,6 @@ function Saiga2D(input_settings = {}) {
 
         sepia(amount){
             this.sepia_value = `sepia(${amount * 100}%)`
-            this.update_filter_value()
-        }
-
-        reset(filter){ 
-            this[filter + '_value'] = ''
             this.update_filter_value()
         }
 
@@ -313,14 +309,16 @@ function Saiga2D(input_settings = {}) {
         constructor(){
             super()
             this.sprite = null
-            this.position = new vector2()
-            this.velocity = new vector2()
-            this.size = new rect()
+            this.position = new vector2
+            this.draw_offset = new vector2
+            this.velocity = new vector2
+            this.size = new rect
+            this.draw_size = null
             this.rotation = 0
             this.scale = new vector2(1)
-            this.origin = new vector2()
+            this.origin = new vector2
             this.alpha = 1
-            this.frame = new vector2()
+            this.frame = new vector2
             this.pixel_snap = false
             this.fixed = false
             this.is_colliding = false
@@ -332,7 +330,7 @@ function Saiga2D(input_settings = {}) {
             this.draw()
         }
         draw(){
-            if (this.sprite) draw_sprite(this.sprite, this.position, this.size, this.rotation, this.scale, this.origin, this.alpha, this.frame, this.pixel_snap, this.fixed)
+            if (this.sprite) draw_sprite(this.sprite, this.position.add(this.draw_offset), this.draw_size ?? this.size, this.rotation, this.scale, this.origin, this.alpha, this.frame, this.pixel_snap, this.fixed)
         }
         handle_collision(){
             render_stack.forEach((object) => {

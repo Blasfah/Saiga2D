@@ -5,14 +5,16 @@ const s2d = Saiga2D({
 
 const [vector2, rect, sprite, text, game_object] = [s2d.vector2, s2d.rect, s2d.sprite, s2d.text, s2d.game_object]
 
-s2d.graphics.filter.drop_shadow(4, 4, 0, 'rgba(0, 0, 0, 0.25)')
+//s2d.graphics.filter.drop_shadow(4, 4, 0, 'rgba(0, 0, 0, 0.25)')
 
 class player extends game_object {
     constructor(){
         super()
         this.sprite = new sprite('assets/binny.png')
-        this.size = new rect(19, 26)
-        this.origin =  new vector2(this.size.width / 2, this.size.height / 2)
+        this.size = new rect(17, 18)
+        this.draw_size = new rect(19, 26)
+        this.draw_offset = new vector2(-2, -16)
+        this.origin = new vector2(this.size.width / 2 - this.draw_offset.x, this.size.height / 2 - this.draw_offset.y)
 
         this.last_position = this.position.copy()
         this.can_jump = false
@@ -22,12 +24,15 @@ class player extends game_object {
         this.gravity = 0.15
         this.drag = 0.9
 
-        this.pos_text = new text('', 'assets/font.ttf', '20px')
+        this.pos_text = new text('goober', 'assets/font.ttf', '20px')
     }
     update(){
         if(s2d.input['KeyA']) this.velocity.x += -this.speed
         if(s2d.input['KeyD']) this.velocity.x += this.speed
-        if((s2d.input['Space'] || s2d.input['KeyW']) && this.can_jump) this.velocity.y = this.jump_power, this.can_jump = false 
+        if((s2d.input['Space'] || s2d.input['KeyW']) && this.can_jump){
+            this.velocity.y = this.jump_power
+            this.can_jump = false 
+        } 
         
         this.velocity.x *= this.drag
         this.velocity.y += this.gravity
@@ -39,21 +44,21 @@ class player extends game_object {
         //this.pos_text.content = `x: ${Math.round(this.position.x)}\ny: ${Math.round(this.position.y)}`
         //this.pos_text.calc_size()
     }
-    // draw(){
-    //     super.draw()
-    //     s2d.graphics.draw_rect('red', this.position, this.size, 0, new vector2(1), this.origin, this.alpha / 4, this.pixel_snap, this.fixed)
-    //     s2d.graphics.draw_line('blue', new vector2(this.position.x + this.size.width / 2, this.position.y + this.size.height / 2), new vector2((this.position.x + this.size.width / 2) + this.velocity.x * 20, (this.position.y + this.size.height / 2) + this.velocity.y * 20), 2, 0.5)
+    draw(){
+        super.draw()
+        s2d.graphics.draw_rect('blue', this.position, this.size, 0, new vector2(1), this.origin, this.alpha / 3, this.pixel_snap, this.fixed)
+        s2d.graphics.draw_line('blue', new vector2(this.position.x + this.size.width / 2, this.position.y + this.size.height / 2), new vector2((this.position.x + this.size.width / 2) + this.velocity.x * 20, (this.position.y + this.size.height / 2) + this.velocity.y * 20), 2, 0.5)
         
-    //     const height_offset = this.pos_text.size.height + 5
-    //     s2d.graphics.draw_text(this.pos_text, 'black', new vector2(this.position.x + 2, this.position.y - height_offset))
-    //     s2d.graphics.draw_text(this.pos_text, 'black', new vector2(this.position.x - 2, this.position.y - height_offset))
-    //     s2d.graphics.draw_text(this.pos_text, 'black', new vector2(this.position.x, this.position.y + 2 - height_offset))
-    //     s2d.graphics.draw_text(this.pos_text, 'black', new vector2(this.position.x, this.position.y - 2 - height_offset))
+        const height_offset = this.pos_text.size.height + 5
+        s2d.graphics.draw_text(this.pos_text, 'black', new vector2(this.position.x + 2, this.position.y - height_offset))
+        s2d.graphics.draw_text(this.pos_text, 'black', new vector2(this.position.x - 2, this.position.y - height_offset))
+        s2d.graphics.draw_text(this.pos_text, 'black', new vector2(this.position.x, this.position.y + 2 - height_offset))
+        s2d.graphics.draw_text(this.pos_text, 'black', new vector2(this.position.x, this.position.y - 2 - height_offset))
 
-    //     s2d.graphics.draw_text(this.pos_text, 'white', new vector2(this.position.x, this.position.y - height_offset))
+        s2d.graphics.draw_text(this.pos_text, 'white', new vector2(this.position.x, this.position.y - height_offset))
 
-    //     s2d.graphics.draw_rect('green', new vector2(this.position.x, this.position.y - height_offset), this.pos_text.size, 0, new vector2(1), new vector2(), 0.2)
-    // }
+        s2d.graphics.draw_rect('green', new vector2(this.position.x, this.position.y - height_offset), this.pos_text.size, 0, new vector2(1), new vector2(), 0.2)
+    }
     on_collision(obj){
         if(obj instanceof platform){
             if(this.last_position.y + this.size.height <= obj.position.y) this.velocity.y = 0, this.position.y = obj.position.y - this.size.height, this.can_jump = true
@@ -67,12 +72,7 @@ class player extends game_object {
 class platform extends game_object {
     constructor(){
         super()
-        this.pixel_snap = true
-    }
-    draw(){
-        s2d.graphics.filter.invert(1)
-        super.draw()
-        s2d.graphics.filter.reset('invert')
+        //this.pixel_snap = true
     }
 }
 
@@ -80,7 +80,7 @@ class platform_1 extends platform {
     constructor(){
         super()
         this.sprite = new sprite('assets/platform_1.png')
-        this.size = new rect(37, 16)
+        this.size = new rect(43, 15)
     }
 }
 
@@ -132,7 +132,10 @@ class star extends game_object {
         }
     }
     on_collision(obj){
-        if(obj instanceof player) this.kill()
+        if(obj instanceof player){
+            this.kill()
+            obj.can_jump = true
+        }
     }
 }
 
@@ -156,8 +159,10 @@ class sawblade extends game_object {
     constructor(){
         super()
         this.sprite = new sprite('assets/sawblade.png')
-        this.size = new rect(18)
-        this.origin = new vector2(this.size.width / 2, this.size.height / 2)
+        this.size = new rect(14)
+        this.draw_offset = new vector2(-4)
+        this.draw_size = new rect(18)
+        this.origin = new vector2(this.size.width / 2 - this.draw_offset.x, this.size.height / 2 - this.draw_offset.y)
     }
     update(){
         this.rotation -= 4
@@ -171,11 +176,18 @@ class sawblade_object extends game_object {
     constructor(){
         super()
         this.sawblade = new sawblade
+        this.spawned = false
         this.rotation_vector = new vector2(0, 115)
         this.rotation = 0
+    }
+    on_load(){
         s2d.instantiate(this.sawblade)
     }
     update(){
+        if(!this.spawned){
+            this.on_load()
+            this.spawned = true
+        } 
         this.rotation += 1
         this.sawblade.position = new vector2(-this.sawblade.size.width / 2, -this.sawblade.size.height / 2).add(this.position.add(this.rotation_vector.rotate(this.rotation)))
     }
@@ -191,7 +203,7 @@ const scenes = {
         [platform_2, {position: new vector2(300, 275)}],
         [platform_3, {position: new vector2(300 - 34.5, 450)}],
         [platform_1, {position: new vector2(560, 300)}],
-        [sawblade_object, {position: new vector2(360, 275)}],
+        [sawblade_object, {position: new vector2(360, 300)}],
         [star, {position: new vector2(560 + 38 - 17, 200)}],
     ]
 }
